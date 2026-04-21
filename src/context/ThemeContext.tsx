@@ -1,8 +1,13 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-const ThemeContext = createContext()
+interface ThemeContextValue {
+  dark: boolean
+  toggle: () => void
+}
 
-export function ThemeProvider({ children }) {
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem('theme')
     if (stored) return stored === 'dark'
@@ -27,4 +32,8 @@ export function ThemeProvider({ children }) {
   )
 }
 
-export const useTheme = () => useContext(ThemeContext)
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext)
+  if (!ctx) throw new Error('useTheme must be used within ThemeProvider')
+  return ctx
+}
